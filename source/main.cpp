@@ -23,13 +23,13 @@ int main()
 
     tree.PrintTreeDetails();
 
-    // tree.Print(BST::PrintType::Ascending);
+    tree.Print(BST::PrintType::Ascending);
 
-    // printf("\n=======================================================\n");
+    printf("\n=======================================================\n");
 
-    // tree.Print(BST::PrintType::Descending);
+    tree.Print(BST::PrintType::Descending);
 
-    // printf("\n=======================================================\n");
+    printf("\n=======================================================\n");
 
     tree.Print(BST::PrintType::Tree);
 
