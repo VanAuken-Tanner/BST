@@ -1,12 +1,21 @@
 #include "bst.h"
+
 #include <iostream>
 
-bool debug_g = false;
-bool debugB_g = false;
+bool debugNodeCreate_g = false;
 
-//debug copy pasta
-// if(debug_g)
-//         printf("\n");
+bool debug_g = false;
+
+void inline PHL_g(bool bLineBefore = true, bool bLineAfter = true)
+{
+    if(bLineBefore)
+        printf("\n");
+
+    printf("=========================================================================");
+
+    if(bLineAfter)
+        printf("\n");
+}
 
 BST::BST()
 {
@@ -48,13 +57,13 @@ void BST::Print(PrintType type)
         PrintNodeRecur(m_root, type);
 }
 
-void BST::PrintNodeRecur(node* toPrint, PrintType type)
+void BST::PrintNodeRecur(Node* toPrint, PrintType type)
 {
     if (toPrint == nullptr)
         return;
 
-    node* first;
-    node* second;
+    Node* first;
+    Node* second;
 
     if(type == Ascending)
     {
@@ -79,28 +88,105 @@ void BST::PrintNodeRecur(node* toPrint, PrintType type)
         PrintNodeRecur(second, type);
 }
 
-BST::node* BST::CreateNode(int iVal, node* pParent)
+BST::Node* BST::CreateNode(int iVal, Node* pParent)
 {
     if(debug_g && pParent == nullptr)
         printf("\nCreating root node... val(%d)",iVal);
     else if(debug_g)
         printf("\nCreating node... val(%d) parent val(%d)",iVal, pParent->iVal);
 
-    node* newNode = new node;
+    Node* newNode = new Node;
     newNode->iVal = iVal;
     newNode->parent = pParent;
     newNode->left = nullptr;
     newNode->right = nullptr;
     newNode->iSize = 1;
     newNode->iHeight = 0;
+    newNode->iDepth = 0;
     newNode->iCount = 1;
 
     m_iNumNodes++;
 
+    if(debugNodeCreate_g)
+        PrintNode(newNode);
+
     if(debug_g)
-        printf("\nNumber of Nodes: %d",m_iNumNodes);
+         printf("\nNumber of Nodes: %d",m_iNumNodes);
 
     return newNode;
+}
+
+void BST::PrintNode(Node* toPrint)
+{
+    PHL_g();
+    printf("\nNode    Val: %d", toPrint->iVal);
+    printf("\nNode Height: %d", toPrint->iHeight);
+    printf("\nNode Size  : %d", toPrint->iSize);
+    printf("\nNode depth : %d", toPrint->iDepth);
+    
+    int iPVal = -1, iLCVal = -1, iRCVal = -1;
+    if(toPrint->parent != nullptr)
+        iPVal = toPrint->parent->iVal;
+    if(toPrint->left != nullptr)
+        iLCVal = toPrint->left->iVal;
+    if(toPrint->right != nullptr)
+        iRCVal = toPrint->right->iVal;
+
+    printf("\nParent Val:%d\nLeft:%d  -  Right:%d", iPVal, iLCVal, iRCVal);
+    PHL_g();
+    
+}
+
+void BST::UpdateSize(Node* target)
+{
+    if(target == nullptr)
+        return;
+
+    target->iSize++;
+    UpdateSize(target->parent);
+}
+
+void BST::UpdateHeight(Node* target)
+{
+    if(target == nullptr)
+        return;
+
+    int iLH = -1;
+    int iRH = -1;
+
+    if(target->left != nullptr)
+        iLH = target->left->iHeight;
+
+    if(target->right != nullptr)
+        iRH = target->right->iHeight;
+
+    int prevHeight = target->iHeight;
+
+    if(iLH > iRH)
+        target->iHeight = iLH + 1;
+    else if(iRH > iLH)
+        target->iHeight = iRH + 1;
+
+    if(debug_g)
+        printf("\nupdating node val:%d L(%d) - R(%d)\nH: %d > %d",target->iVal, iLH, iRH, prevHeight, target->iHeight);
+
+    UpdateHeight(target->parent);
+}
+
+void BST::UpdateDepth(Node* toUpdate)
+{
+    int iDepthCount = 0;
+    Node* pParent = toUpdate->parent;
+    
+    while (pParent != nullptr)
+    {
+    
+        iDepthCount++;
+        pParent = pParent->parent;
+    }
+
+    toUpdate->iDepth = iDepthCount;
+    
 }
 
 void BST::Insert(int iVal)
@@ -114,7 +200,7 @@ void BST::Insert(int iVal)
         return;
     }
 
-    node* iter = m_root;
+    Node* iter = m_root;
     while(iter != nullptr)
     {
         //look at current node
@@ -127,15 +213,18 @@ void BST::Insert(int iVal)
             if(debug_g)
                 printf("\nValue less than current node. %d < %d", iVal, iter->iVal);
 
-            if(iter->left)
+            if(iter->left != nullptr)
             {
                 iter = iter->left;
             }
             else
             {
-                iter->left = CreateNode(iVal, iter);
+                iter->left = CreateNode(iVal, iter); 
+                
                 UpdateSize(iter);
                 UpdateHeight(iter);
+                UpdateDepth(iter->left);
+                             
             }
         }
         else if (iVal > iter->iVal)
@@ -143,7 +232,7 @@ void BST::Insert(int iVal)
             if(debug_g)
                 printf("\nValue greater than current node. %d > %d", iVal, iter->iVal);
 
-            if(iter->right)
+            if(iter->right != nullptr)
             {
                 iter = iter->right;
             }
@@ -152,6 +241,7 @@ void BST::Insert(int iVal)
                 iter->right = CreateNode(iVal, iter);
                 UpdateSize(iter);
                 UpdateHeight(iter);
+                UpdateDepth(iter->right);
             }
         }
         else if (iter->iVal == iVal)
@@ -168,12 +258,12 @@ void BST::Insert(int iVal)
 }
 
 
-BST::node* BST::GetMinNode()
+BST::Node* BST::GetMinNode()
 {
     if(m_root == nullptr)
         return nullptr;
     
-    node* iter = m_root;
+    Node* iter = m_root;
 
     while(iter->left)
     {
@@ -183,12 +273,12 @@ BST::node* BST::GetMinNode()
     return iter;
 }
 
-BST::node* BST::GetMaxNode()
+BST::Node* BST::GetMaxNode()
 {
     if(m_root == nullptr)
         return nullptr;
     
-    node* iter = m_root;
+    Node* iter = m_root;
 
     while(iter->right)
     {
@@ -226,37 +316,6 @@ void BST::PrintTreeDetails()
     printf("\n==============================");
 }
 
-void BST::UpdateSize(node* target)
-{
-    if(target == nullptr)
-        return;
-
-    target->iSize++;
-    UpdateSize(target->parent);
-}
-
-void BST::UpdateHeight(node* target)
-{
-    if(target == nullptr)
-        return;
-
-    int iLH = -1;
-    int iRH = -1;
-
-    if(target->left)
-        iLH = target->left->iHeight;
-
-    if(target->right)
-        iRH = target->right->iHeight;
-
-    if(iLH > iRH)
-        target->iHeight = iLH + 1;
-    else
-        target->iHeight = iRH + 1;
-
-    UpdateHeight(target->parent);
-}
-
 void BST::PrintTreeLikeTree()
 {
     //build a 2d vect of vals
@@ -264,9 +323,10 @@ void BST::PrintTreeLikeTree()
 
     std::vector<std::vector<int>> output;
 
-    if(debugB_g)
+    if(debug_g)
         printf("\nCalled Print Tree like Tree...");
 
+    //recursively adds nodes to the vector until we reach all of the leaves.
     AddNodeToVector(output, m_root);
 
     //if we got here then we should have recursively
@@ -284,42 +344,20 @@ void BST::PrintTreeLikeTree()
     printf("===============================================\n");
 }
 
-void BST::AddNodeToVector(std::vector<std::vector<int>> &output, node* node)
+//Uses depth to index the array
+void BST::AddNodeToVector(std::vector<std::vector<int>> &output, Node* node)
 {
     if(node == nullptr)
-    {
-        if(debugB_g)
-            printf("\nBOUNCE");
         return;
-    }
-    
 
-    if(debugB_g)
-        printf("\nAdding node val(%d) with height(%d) to vector...", node->iVal, node->iHeight);
-
-    int nodeIndex = GetTreeHeight() - (node->iHeight + 1);
-
-    if(debugB_g)
-        printf("\nNode Index: %d", nodeIndex);
-
-    if(output.size() <= nodeIndex)
+    if(output.size() <= node->iDepth)
     {
-        if(debugB_g)
-            printf("\nCreating new row...");
-
-        std::vector<int> newRow;
-        newRow.push_back(node->iVal);
-        output.push_back(newRow);
-    }
-    else
-    {
-        if(debugB_g)
-            printf("\nAdding node to row... height(%d)", node->iHeight);
-
-        output[nodeIndex].push_back(node->iVal);
+        std::vector<int> newVec;
+        output.push_back(newVec);
     }
 
-    
+    output.at(node->iDepth).push_back(node->iVal);
+
     AddNodeToVector(output, node->left);
     AddNodeToVector(output, node->right);
 

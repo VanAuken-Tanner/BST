@@ -4,6 +4,17 @@
 #include "VectorMaker.h"
 #include "bst.h"
 
+void inline PHL_g(bool bLineBefore = true, bool bLineAfter = true)
+{
+    if(bLineBefore)
+        printf("\n");
+
+    printf("=========================================================================");
+
+    if(bLineAfter)
+        printf("\n");
+}
+
 int main()
 {
     std::vector<int> testVect;
@@ -25,11 +36,11 @@ int main()
 
     tree.Print(BST::PrintType::Ascending);
 
-    printf("\n=======================================================\n");
+    PHL_g();
 
     tree.Print(BST::PrintType::Descending);
 
-    printf("\n=======================================================\n");
+    PHL_g();
 
     tree.Print(BST::PrintType::Tree);
 

@@ -21,38 +21,41 @@ public:
     void PrintTreeDetails();
 
 private:
-    struct node
+    struct Node
     {
-        node* parent;
-        node* left;
-        node* right;
+        Node* parent;
+        Node* left;
+        Node* right;
         
         int iVal;
         int iSize;
         int iHeight;
+        int iDepth;//distance from root - root 0
         int iCount;//number of occurances of this value
     };
 
-    node*               m_root;
+    Node*               m_root;
     int                 m_iNumNodes;
     std::string         m_sName;
     
 
     void Insert(int iVal);
-    node* CreateNode(int iVal, node* pParent);
-    node* GetMinNode();
-    node* GetMaxNode();
+    Node* CreateNode(int iVal, Node* pParent);
+    Node* GetMinNode();
+    Node* GetMaxNode();
 
-    void UpdateSize(node* target);
-    void UpdateHeight(node* target);
+    void UpdateSize(Node* target);
+    void UpdateHeight(Node* target);
+    void UpdateDepth(Node* target);
 
     int GetTreeHeight();
     int GetTreeSize();
 
     void PrintTreeLikeTree();
-    void PrintNodeRecur(node* toPrint, PrintType type);
+    void PrintNodeRecur(Node* toPrint, PrintType type);
+    void PrintNode(Node* toPrint);
     
-    void AddNodeToVector(std::vector<std::vector<int>> &output, node* node);
+    void AddNodeToVector(std::vector<std::vector<int>> &output, Node* node);
 
 
 };
