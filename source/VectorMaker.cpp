@@ -22,7 +22,7 @@ void VectorMaker::PrintVector(std::vector<int> vPrint, std::string sName)
 {
     printf("\n========================================\n");
     if(sName.size() > 0)
-        printf("%s:(size:%d)\n", sName.c_str(), vPrint.size());
+        printf("%s:(size:%li)\n", sName.c_str(), vPrint.size());
 
     for(int i = 0; i < vPrint.size(); i++)
     {

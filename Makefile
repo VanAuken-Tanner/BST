@@ -14,8 +14,9 @@ VectorMaker.o:
 	g++ -c ${src}VectorMaker.cpp -o ${out}VectorMaker.o
 
 run:
-	.\${out}main.exe
+	${out}main
 
 clean:
-	del output\*.o
-	del output\*.exe
+	rm output/*.o
+	rm output/main
+	
